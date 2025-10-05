@@ -1,0 +1,40 @@
+{
+  "name": "todoapp-be",
+  "version": "1.0.0",
+  "description": "A simple todo app backend",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "jest --coverage"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.19.2",
+    "pg": "^8.11.5",
+    "react-icons": "^5.5.0",
+    "reflect-metadata": "^0.2.2",
+    "sequelize": "^6.37.3",
+    "sequelize-typescript": "^2.1.6"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.10",
+    "@types/pg": "^8.11.10",
+    "@types/validator": "^13.12.2",
+    "jest": "^29.7.0",
+    "sequelize-cli": "^6.6.2",
+    "ts-jest": "^29.1.1",
+    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
