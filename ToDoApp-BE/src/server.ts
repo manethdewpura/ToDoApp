@@ -39,7 +39,7 @@ const startServer = async () => {
 
     if (serverConfig.env === "development") {
       // Safe mode: Only creates tables if they don't exist, doesn't alter
-      await syncDatabase(); 
+      // await syncDatabase();
       
       // Use this ONLY when you change model structure:
       // await syncDatabase({ alter: true });

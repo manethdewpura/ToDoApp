@@ -1,9 +1,11 @@
 import { TaskModel } from "../models/index.js";
 import { type CreateTaskDto } from "../dtos/index.js";
 import { NotFoundError, ValidationError, ERROR_MESSAGES } from "../common/index.js";
+import { taskDAO } from "../dao/index.js";
 
 /**
- * Task Service using Sequelize TypeScript ORM
+ * Task Service using DAO pattern
+ * Business logic layer - uses DAO for data access
  */
 export class TaskService {
   /**
@@ -17,8 +19,8 @@ export class TaskService {
     }
 
     try {
-      // Create task using Sequelize model
-      const task = await TaskModel.create({
+      // Create task using DAO
+      const task = await taskDAO.create({
         title: dto.title,
         description: dto.description,
       });
@@ -35,11 +37,7 @@ export class TaskService {
    * Get recent non-completed tasks
    */
   async getRecentTasks(): Promise<TaskModel[]> {
-    const tasks = await TaskModel.findAll({
-      where: { is_completed: false },
-      order: [["created_at", "DESC"]],
-      limit: 5,
-    });
+    const tasks = await taskDAO.findRecentNonCompleted(5);
     return tasks;
   }
 
@@ -47,8 +45,8 @@ export class TaskService {
    * Mark a task as completed
    */
   async completeTask(id: number): Promise<TaskModel> {
-    // Find task
-    const task = await TaskModel.findByPk(id);
+    // Find task using DAO
+    const task = await taskDAO.findById(id);
 
     if (!task) {
       throw new NotFoundError(ERROR_MESSAGES.TASK_NOT_FOUND);
@@ -59,8 +57,8 @@ export class TaskService {
       throw new ValidationError(ERROR_MESSAGES.TASK_ALREADY_COMPLETED);
     }
 
-    // Complete using model method
-    await task.complete();
+    // Complete using DAO
+    await taskDAO.markAsCompleted(task);
 
     return task;
   }
@@ -69,7 +67,7 @@ export class TaskService {
    * Get task by ID
    */
   async getTaskById(id: number): Promise<TaskModel> {
-    const task = await TaskModel.findByPk(id);
+    const task = await taskDAO.findById(id);
 
     if (!task) {
       throw new NotFoundError(ERROR_MESSAGES.TASK_NOT_FOUND);
@@ -85,14 +83,14 @@ export class TaskService {
     id: number,
     data: { title?: string; description?: string }
   ): Promise<TaskModel> {
-    const task = await TaskModel.findByPk(id);
+    const task = await taskDAO.findById(id);
 
     if (!task) {
       throw new NotFoundError(ERROR_MESSAGES.TASK_NOT_FOUND);
     }
 
-    // Update using Sequelize
-    await task.update(data);
+    // Update using DAO
+    await taskDAO.update(task, data);
 
     return task;
   }
@@ -101,23 +99,21 @@ export class TaskService {
    * Delete a task
    */
   async deleteTask(id: number): Promise<void> {
-    const task = await TaskModel.findByPk(id);
+    const task = await taskDAO.findById(id);
 
     if (!task) {
       throw new NotFoundError(ERROR_MESSAGES.TASK_NOT_FOUND);
     }
 
-    // Delete using Sequelize
-    await task.destroy();
+    // Delete using DAO
+    await taskDAO.delete(task);
   }
 
   /**
    * Get all tasks
    */
   async getAllTasks(): Promise<TaskModel[]> {
-    const tasks = await TaskModel.findAll({
-      order: [["created_at", "DESC"]],
-    });
+    const tasks = await taskDAO.findAllOrderedByDate();
     return tasks;
   }
 }

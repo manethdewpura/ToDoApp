@@ -1,2 +1,1 @@
-export { TaskDao, taskDao } from "./task.dao.js";
-
+export { TaskDAO, taskDAO } from "./task.dao.js";

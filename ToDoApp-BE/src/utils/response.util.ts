@@ -27,7 +27,7 @@ export class ResponseUtil {
       data,
     };
 
-    if (message) {
+    if (message !== undefined) {
       response.message = message;
     }
 

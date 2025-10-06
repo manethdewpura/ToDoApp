@@ -17,7 +17,7 @@ export const sequelize = new Sequelize({
   username: process.env.DB_USER || "postgres",
   password: getPassword(),
   database: process.env.DB_NAME || "todos",
-  models: [TaskModel], // Explicitly list models
+  models: [TaskModel],
   logging: process.env.NODE_ENV === "development" ? console.log : false,
   pool: {
     max: 20,

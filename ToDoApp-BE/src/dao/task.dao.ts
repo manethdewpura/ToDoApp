@@ -1,116 +1,128 @@
-import { pool } from "../db.js";
-import { type ITask, type ICreateTaskParams } from "../interfaces/index.js";
-import { DatabaseError } from "../common/index.js";
+import { TaskModel } from "../models/index.js";
+import type { FindOptions, WhereOptions } from "sequelize";
 
-export class TaskDao {
+/**
+ * Task Data Access Object
+ * Handles all database operations for tasks
+ */
+export class TaskDAO {
   /**
    * Create a new task in the database
    */
-  async create(params: ICreateTaskParams): Promise<ITask> {
-    try {
-      const query = `
-        INSERT INTO task (title, description)
-        VALUES ($1, $2)
-        RETURNING *
-      `;
-      const values = [params.title, params.description];
-      const result = await pool.query<ITask>(query, values);1
-
-      if (!result.rows[0]) {
-        throw new DatabaseError("Failed to create task");
-      }
-
-      return result.rows[0];
-    } catch (error) {
-      if (error instanceof DatabaseError) {
-        throw error;
-      }
-      console.error("Error in TaskDao.create:", error);
-      throw new DatabaseError("Failed to create task in database");
-    }
+  async create(data: {
+    title: string;
+    description: string;
+    is_completed?: boolean;
+  }): Promise<TaskModel> {
+    return await TaskModel.create(data);
   }
 
   /**
-   * Get recent non-completed tasks (last 5, ordered by created_at desc)
+   * Find a task by its primary key (ID)
    */
-  async getRecentNonCompleted(limit: number = 5): Promise<ITask[]> {
-    try {
-      const query = `
-        SELECT * FROM task
-        WHERE is_completed = false
-        ORDER BY created_at DESC
-        LIMIT $1
-      `;
-      const result = await pool.query<ITask>(query, [limit]);
-      return result.rows;
-    } catch (error) {
-      console.error("Error in TaskDao.getRecentNonCompleted:", error);
-      throw new DatabaseError("Failed to fetch tasks from database");
-    }
+  async findById(id: number): Promise<TaskModel | null> {
+    return await TaskModel.findByPk(id);
   }
 
   /**
-   * Find a task by ID
+   * Find all tasks with optional filtering and ordering
    */
-  async findById(id: number): Promise<ITask | null> {
-    try {
-      const query = "SELECT * FROM task WHERE id = $1";
-      const result = await pool.query<ITask>(query, [id]);
-      return result.rows[0] || null;
-    } catch (error) {
-      console.error("Error in TaskDao.findById:", error);
-      throw new DatabaseError("Failed to find task in database");
-    }
+  async findAll(options?: FindOptions<TaskModel>): Promise<TaskModel[]> {
+    return await TaskModel.findAll(options);
+  }
+
+  /**
+   * Find tasks by a specific condition
+   */
+  async findWhere(
+    where: WhereOptions<TaskModel>,
+    options?: Omit<FindOptions<TaskModel>, "where">
+  ): Promise<TaskModel[]> {
+    return await TaskModel.findAll({
+      where,
+      ...options,
+    });
+  }
+
+  /**
+   * Find one task by a specific condition
+   */
+  async findOne(where: WhereOptions<TaskModel>): Promise<TaskModel | null> {
+    return await TaskModel.findOne({ where });
+  }
+
+  /**
+   * Update a task in the database
+   */
+  async update(
+    task: TaskModel,
+    data: Partial<{
+      title: string;
+      description: string;
+      is_completed: boolean;
+    }>
+  ): Promise<TaskModel> {
+    await task.update(data);
+    return task;
+  }
+
+  /**
+   * Delete a task from the database
+   */
+  async delete(task: TaskModel): Promise<void> {
+    await task.destroy();
   }
 
   /**
    * Mark a task as completed
    */
-  async markAsCompleted(id: number): Promise<ITask | null> {
-    try {
-      const query = `
-        UPDATE task
-        SET is_completed = true
-        WHERE id = $1
-        RETURNING *
-      `;
-      const result = await pool.query<ITask>(query, [id]);
-      return result.rows[0] || null;
-    } catch (error) {
-      console.error("Error in TaskDao.markAsCompleted:", error);
-      throw new DatabaseError("Failed to update task in database");
-    }
+  async markAsCompleted(task: TaskModel): Promise<TaskModel> {
+    task.is_completed = true;
+    await task.save();
+    return task;
   }
 
   /**
-   * Delete a task by ID
+   * Get recent non-completed tasks
    */
-  async deleteById(id: number): Promise<boolean> {
-    try {
-      const query = "DELETE FROM task WHERE id = $1";
-      const result = await pool.query(query, [id]);
-      return (result.rowCount ?? 0) > 0;
-    } catch (error) {
-      console.error("Error in TaskDao.deleteById:", error);
-      throw new DatabaseError("Failed to delete task from database");
-    }
+  async findRecentNonCompleted(limit: number = 5): Promise<TaskModel[]> {
+    return await this.findWhere(
+      { is_completed: false },
+      {
+        order: [["created_at", "DESC"]],
+        limit,
+      }
+    );
   }
 
   /**
-   * Get all tasks (for testing purposes)
+   * Get all tasks ordered by creation date
    */
-  async findAll(): Promise<ITask[]> {
-    try {
-      const query = "SELECT * FROM task ORDER BY created_at DESC";
-      const result = await pool.query<ITask>(query);
-      return result.rows;
-    } catch (error) {
-      console.error("Error in TaskDao.findAll:", error);
-      throw new DatabaseError("Failed to fetch all tasks from database");
+  async findAllOrderedByDate(): Promise<TaskModel[]> {
+    return await this.findAll({
+      order: [["created_at", "DESC"]],
+    });
+  }
+
+  /**
+   * Count tasks by condition
+   */
+  async count(where?: WhereOptions<TaskModel>): Promise<number> {
+    if (where) {
+      return await TaskModel.count({ where });
     }
+    return await TaskModel.count();
+  }
+
+  /**
+   * Check if a task exists by ID
+   */
+  async exists(id: number): Promise<boolean> {
+    const count = await this.count({ id });
+    return count > 0;
   }
 }
 
 // Export singleton instance
-export const taskDao = new TaskDao();
+export const taskDAO = new TaskDAO();
 

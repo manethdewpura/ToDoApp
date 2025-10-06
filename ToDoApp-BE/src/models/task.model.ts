@@ -114,23 +114,5 @@ export class TaskModel extends Model {
       createdAt: this.created_at,
     };
   }
-
-  /**
-   * Static method: Find recent non-completed tasks
-   */
-  static async findRecentNonCompleted(limit: number = 5): Promise<TaskModel[]> {
-    return await TaskModel.findAll({
-      where: { is_completed: false },
-      order: [["created_at", "DESC"]],
-      limit,
-    });
-  }
-
-  /**
-   * Static method: Create a new task
-   */
-  static async createTask(title: string, description: string): Promise<TaskModel> {
-    return await TaskModel.create({ title, description });
-  }
 }
 

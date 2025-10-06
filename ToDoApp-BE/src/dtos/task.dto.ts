@@ -61,7 +61,7 @@ export class CompleteTaskDto {
   validate(): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
-    if (isNaN(this.id) || this.id <= 0) {
+    if (isNaN(this.id) || this.id <= 0 || !Number.isInteger(this.id)) {
       errors.push("Invalid task ID");
     }
 
