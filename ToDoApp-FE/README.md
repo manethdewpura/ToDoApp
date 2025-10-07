@@ -116,22 +116,3 @@ If you see "Failed to fetch tasks" error:
 ### CORS Errors
 
 If you encounter CORS errors, ensure the backend allows requests from the frontend origin (default: `http://localhost:5173`).
-
-## Future Enhancements
-
-- [ ] Task editing
-- [ ] Task deletion
-- [ ] View all completed tasks
-- [ ] Task filtering and sorting
-- [ ] Task categories/tags
-- [ ] Dark mode toggle
-- [ ] Offline support
-- [ ] Task due dates
-
-## License
-
-MIT
-
-## Contributing
-
-Feel free to submit issues and enhancement requests!

@@ -311,47 +311,6 @@ docker exec -it todoapp-db pg_isready -U postgres
 - Multi-stage builds
 - Health checks
 
-## 📊 Performance
-
-- **Frontend Build**: ~2-3 seconds
-- **Backend Build**: ~5-7 seconds
-- **Total Docker Build**: ~1-2 minutes (first time)
-- **Cold Start**: ~10-15 seconds
-- **API Response**: < 50ms
-- **Frontend Load**: < 1 second
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
-
-## 📝 License
-
-MIT License - feel free to use this project for learning or production!
-
-## 🙏 Acknowledgments
-
-- React team for an amazing framework
-- Express.js community
-- PostgreSQL team
-- Docker for making deployment easy
-- Tailwind CSS for beautiful styling
-
-## 📧 Support
-
-If you have questions or need help:
-- Open an issue
-- Check the [Docker Setup Guide](DOCKER_SETUP.md)
-- Review the [API Examples](ToDoApp-BE/API_EXAMPLES.md)
-
----
-
-**Made with ❤️ using React, Express, PostgreSQL, and Docker**
-
-🚀 **Start your ToDoApp journey today!**
 
 ```bash
 docker-compose up -d
