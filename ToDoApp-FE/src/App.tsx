@@ -1,15 +1,11 @@
-import './index.css'
 import { useTasks } from './hooks'
-import { Header, Alert, TaskForm, TaskList } from './components'
+import { Header, TaskForm, TaskList, Toaster } from './components'
 
 function App() {
   const { 
     tasks, 
-    error, 
-    successMessage, 
     addTask, 
-    completeTask, 
-    clearError 
+    completeTask 
   } = useTasks();
 
   return (
@@ -17,19 +13,7 @@ function App() {
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <Header />
 
-        {/* Success Message */}
-        {successMessage && (
-          <div className="mb-6">
-            <Alert type="success" message={successMessage} />
-          </div>
-        )}
-
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6">
-            <Alert type="error" message={error} onClose={clearError} />
-          </div>
-        )}
+        <Toaster />
 
         {/* Two Column Layout on Large Screens */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

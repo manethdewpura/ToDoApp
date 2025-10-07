@@ -73,21 +73,4 @@ export const taskApi = {
     
     return data.data;
   },
-
-  /**
-   * Get a single task by ID
-   */
-  async getTaskById(taskId: number): Promise<Task> {
-    const response = await fetch(`${API_BASE_URL}/tasks/${taskId}`);
-    const data: ApiResponse<Task> = await response.json();
-    
-    if (!data.success || !data.data) {
-      throw new ApiError(
-        data.error?.statusCode || 500,
-        data.error?.message || 'Failed to fetch task'
-      );
-    }
-    
-    return data.data;
-  },
 };
