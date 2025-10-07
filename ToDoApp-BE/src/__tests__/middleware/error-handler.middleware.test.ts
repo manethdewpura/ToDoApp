@@ -179,8 +179,7 @@ describe('errorHandler middleware', () => {
   describe('Request information logging', () => {
     it('should log request information correctly', () => {
       const error = new Error('Test error');
-      mockReq.path = '/api/tasks/123';
-      mockReq.method = 'POST';
+      mockReq = { ...mockReq, path: '/api/tasks/123', method: 'POST' };
 
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 

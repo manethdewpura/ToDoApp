@@ -39,3 +39,12 @@ coverage/
 
 # Docker
 .dockerignore
+
+# Test artifacts
+ToDoApp-BE/src/__tests__/**/*.d.ts
+ToDoApp-BE/src/__tests__/**/*.map
+
+# TypeScript declaration files and maps generated into src (backend)
+ToDoApp-BE/src/**/*.d.ts
+ToDoApp-BE/src/**/*.d.ts.map
+ToDoApp-BE/src/**/*.map

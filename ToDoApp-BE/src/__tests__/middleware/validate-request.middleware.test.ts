@@ -117,8 +117,9 @@ describe('validateRequestBody middleware', () => {
         middleware(mockReq as Request, mockRes as Response, mockNext);
         fail('Expected ValidationError to be thrown');
       } catch (error) {
-        expect(error).toBeInstanceOf(ValidationError);
-        expect(error.message).toContain('Missing required fields: title, description, status');
+        const err = error as ValidationError;
+        expect(err).toBeInstanceOf(ValidationError);
+        expect(err.message).toContain('Missing required fields: title, description, status');
       }
 
       expect(mockNext).not.toHaveBeenCalled();
@@ -180,8 +181,9 @@ describe('validateRequestBody middleware', () => {
         middleware(mockReq as Request, mockRes as Response, mockNext);
         fail('Expected ValidationError to be thrown');
       } catch (error) {
-        expect(error).toBeInstanceOf(ValidationError);
-        expect(error.message).toBe('Missing required fields: title');
+        const err = error as ValidationError;
+        expect(err).toBeInstanceOf(ValidationError);
+        expect(err.message).toBe('Missing required fields: title');
       }
     });
 
@@ -193,8 +195,9 @@ describe('validateRequestBody middleware', () => {
         middleware(mockReq as Request, mockRes as Response, mockNext);
         fail('Expected ValidationError to be thrown');
       } catch (error) {
-        expect(error).toBeInstanceOf(ValidationError);
-        expect(error.message).toBe('Missing required fields: title, description');
+        const err = error as ValidationError;
+        expect(err).toBeInstanceOf(ValidationError);
+        expect(err.message).toBe('Missing required fields: title, description');
       }
     });
   });

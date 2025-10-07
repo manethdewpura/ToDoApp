@@ -124,9 +124,11 @@ describe('TaskResponseDto', () => {
 
       expect(dtos).toHaveLength(2);
       expect(dtos[0]).toBeInstanceOf(TaskResponseDto);
-      expect(dtos[0].id).toBe(1);
+      const firstDto = dtos[0]!;
+      expect(firstDto.id).toBe(1);
       expect(dtos[1]).toBeInstanceOf(TaskResponseDto);
-      expect(dtos[1].id).toBe(2);
+      const secondDto = dtos[1]!;
+      expect(secondDto.id).toBe(2);
     });
 
     it('should handle empty array', () => {

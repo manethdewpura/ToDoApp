@@ -26,12 +26,12 @@ export const errorHandler = (
   });
 
   // Default error values
-  let statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
+  let statusCode: number = HTTP_STATUS.INTERNAL_SERVER_ERROR;
   let message = "Internal server error";
 
   // Check if it's an operational error (AppError)
   if (err instanceof AppError) {
-    statusCode = err.statusCode;
+    statusCode = err.statusCode as number;
     message = err.message;
   }
 
@@ -46,7 +46,7 @@ export const errorHandler = (
 
   // Include stack trace in development
   if (process.env.NODE_ENV === "development") {
-    errorResponse.error.stack = err.stack;
+    errorResponse.error.stack = err.stack ?? '';
   }
 
   res.status(statusCode).json(errorResponse);
