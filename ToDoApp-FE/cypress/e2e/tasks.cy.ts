@@ -1,9 +1,5 @@
 /// <reference types="cypress" />
 
-/// <reference types="cypress" />
-
-// E2E tests for ToDo App using network stubbing
-
 type Task = {
   id: number;
   title: string;
@@ -12,7 +8,6 @@ type Task = {
   createdAt: string;
 };
 
-// Match any host to be robust across environments (dev/prod)
 const api = (path: string) => `**/api${path}`;
 
 describe('ToDoApp - Tasks E2E', () => {
@@ -39,7 +34,6 @@ describe('ToDoApp - Tasks E2E', () => {
       createdAt: new Date().toISOString(),
     };
 
-    // Stateful intercepts: first GET empty, after POST respond with new task
     let created = false;
 
     cy.intercept('GET', api('/tasks'), (req) => {
@@ -82,7 +76,6 @@ describe('ToDoApp - Tasks E2E', () => {
       createdAt: new Date().toISOString(),
     };
 
-    // Stateful GET: return the task first, then empty after completion
     let completed = false;
     cy.intercept('GET', api('/tasks'), (req) => {
       if (completed) {
@@ -92,7 +85,6 @@ describe('ToDoApp - Tasks E2E', () => {
       }
     }).as('getTasks');
 
-    // Completing the task toggles GET response to empty
     cy.intercept('PATCH', api(`/tasks/${task.id}/complete`), (req) => {
       completed = true;
       req.reply({ statusCode: 200, body: { success: true, data: { ...task, isCompleted: true } } });
@@ -104,7 +96,6 @@ describe('ToDoApp - Tasks E2E', () => {
     cy.contains(task.title).should('be.visible');
     cy.contains(task.description).should('be.visible');
 
-    // Button in card has title attribute "Mark as complete"
     cy.get('button[title="Mark as complete"]').first().click({ force: true });
 
     cy.wait('@completeTask');
@@ -113,24 +104,20 @@ describe('ToDoApp - Tasks E2E', () => {
   });
 
   it('shows an error toast when creation fails', () => {
-    // Ignore the expected uncaught rejection from the app for this test only
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     (Cypress as any).on('uncaught:exception', (err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);
       if (/Failed to create task/i.test(message)) {
         return false;
       }
-      // Let other exceptions fail the test
       return true;
     });
 
-    // Initial load
     cy.intercept('GET', api('/tasks'), {
       statusCode: 200,
       body: { success: true, data: [] },
     }).as('getTasksEmpty');
 
-    // Simulate backend validation/server error
     cy.intercept('POST', api('/tasks'), {
       statusCode: 400,
       body: { success: false, error: { message: 'Failed to create task', statusCode: 400 } },
@@ -145,7 +132,6 @@ describe('ToDoApp - Tasks E2E', () => {
 
     cy.wait('@createFail');
 
-    // Expect an error toast/message to be visible
     cy.contains(/failed to add task|failed to create task/i).should('be.visible');
   });
 });
