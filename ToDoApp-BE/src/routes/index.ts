@@ -12,7 +12,6 @@ router.get("/health", (req, res) => {
   });
 });
 
-// Task routes (using Sequelize TypeScript ORM)
 router.use("/tasks", taskRoutes);
 
 export default router;

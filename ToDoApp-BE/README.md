@@ -94,14 +94,12 @@ src/__tests__/
 ├── middleware/
 │   ├── async-handler.middleware.test.ts
 │   ├── error-handler.middleware.test.ts
-│   └── validate-request.middleware.test.ts
 ├── models/
 │   └── task.model.test.ts
 ├── services/
 │   └── task.service.test.ts
 ├── utils/
 │   ├── logger.util.test.ts
-│   └── response.util.test.ts
 └── setup.ts
 ```
 
