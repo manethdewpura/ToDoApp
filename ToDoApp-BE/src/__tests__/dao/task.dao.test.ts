@@ -82,34 +82,6 @@ describe('TaskDAO', () => {
     });
   });
 
-  describe('findAll', () => {
-    it('should find all tasks', async () => {
-      const mockTasks = [mockTask, { ...mockTask, id: 2 }];
-      MockedTaskModel.findAll.mockResolvedValue(mockTasks as any);
-
-      const result = await taskDAO.findAll();
-
-      expect(MockedTaskModel.findAll).toHaveBeenCalledWith(undefined);
-      expect(result).toBe(mockTasks);
-    });
-
-    it('should find all tasks with options', async () => {
-      const mockTasks = [mockTask];
-      MockedTaskModel.findAll.mockResolvedValue(mockTasks as any);
-
-      const options = {
-        where: { is_completed: false },
-        order: [['created_at', 'DESC']],
-        limit: 5,
-      };
-
-      const result = await taskDAO.findAll(options as any);
-
-      expect(MockedTaskModel.findAll).toHaveBeenCalledWith(options);
-      expect(result).toBe(mockTasks);
-    });
-  });
-
   describe('findWhere', () => {
     it('should find tasks by where condition', async () => {
       const mockTasks = [mockTask];
@@ -141,61 +113,6 @@ describe('TaskDAO', () => {
         limit: 10,
       });
       expect(result).toBe(mockTasks);
-    });
-  });
-
-  describe('findOne', () => {
-    it('should find one task by condition', async () => {
-      MockedTaskModel.findOne.mockResolvedValue(mockTask);
-
-      const result = await taskDAO.findOne({ id: 1 });
-
-      expect(MockedTaskModel.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
-      expect(result).toBe(mockTask);
-    });
-
-    it('should return null when no task matches', async () => {
-      MockedTaskModel.findOne.mockResolvedValue(null);
-
-      const result = await taskDAO.findOne({ id: 999 });
-
-      expect(MockedTaskModel.findOne).toHaveBeenCalledWith({ where: { id: 999 } });
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('update', () => {
-    it('should update a task', async () => {
-      mockTask.update.mockResolvedValue(mockTask);
-
-      const updateData = {
-        title: 'Updated Title',
-        description: 'Updated Description',
-      };
-
-      const result = await taskDAO.update(mockTask, updateData);
-
-      expect(mockTask.update).toHaveBeenCalledWith(updateData);
-      expect(result).toBe(mockTask);
-    });
-
-    it('should update task completion status', async () => {
-      mockTask.update.mockResolvedValue(mockTask);
-
-      const result = await taskDAO.update(mockTask, { is_completed: true });
-
-      expect(mockTask.update).toHaveBeenCalledWith({ is_completed: true });
-      expect(result).toBe(mockTask);
-    });
-  });
-
-  describe('delete', () => {
-    it('should delete a task', async () => {
-      mockTask.destroy.mockResolvedValue();
-
-      await taskDAO.delete(mockTask);
-
-      expect(mockTask.destroy).toHaveBeenCalled();
     });
   });
 
@@ -241,59 +158,5 @@ describe('TaskDAO', () => {
     });
   });
 
-  describe('findAllOrderedByDate', () => {
-    it('should find all tasks ordered by creation date', async () => {
-      const mockTasks = [mockTask, { ...mockTask, id: 2 }];
-      MockedTaskModel.findAll.mockResolvedValue(mockTasks as any);
-
-      const result = await taskDAO.findAllOrderedByDate();
-
-      expect(MockedTaskModel.findAll).toHaveBeenCalledWith({
-        order: [['created_at', 'DESC']],
-      });
-      expect(result).toBe(mockTasks);
-    });
   });
-
-  describe('count', () => {
-    it('should count all tasks when no condition provided', async () => {
-      MockedTaskModel.count.mockResolvedValue(10);
-
-      const result = await taskDAO.count();
-
-      expect(MockedTaskModel.count).toHaveBeenCalledWith();
-      expect(result).toBe(10);
-    });
-
-    it('should count tasks by condition', async () => {
-      MockedTaskModel.count.mockResolvedValue(5);
-
-      const result = await taskDAO.count({ is_completed: false });
-
-      expect(MockedTaskModel.count).toHaveBeenCalledWith({ where: { is_completed: false } });
-      expect(result).toBe(5);
-    });
-  });
-
-  describe('exists', () => {
-    it('should return true when task exists', async () => {
-      MockedTaskModel.count.mockResolvedValue(1);
-
-      const result = await taskDAO.exists(1);
-
-      expect(MockedTaskModel.count).toHaveBeenCalledWith({ where: { id: 1 } });
-      expect(result).toBe(true);
-    });
-
-    it('should return false when task does not exist', async () => {
-      MockedTaskModel.count.mockResolvedValue(0);
-
-      const result = await taskDAO.exists(999);
-
-      expect(MockedTaskModel.count).toHaveBeenCalledWith({ where: { id: 999 } });
-      expect(result).toBe(false);
-    });
-  });
-});
-
 

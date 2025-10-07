@@ -25,12 +25,14 @@ export class TaskDAO {
   }
 
   /**
-   * Find all tasks with optional filtering and ordering
+   * Mark a task as completed
    */
-  async findAll(options?: FindOptions<TaskModel>): Promise<TaskModel[]> {
-    return await TaskModel.findAll(options);
+  async markAsCompleted(task: TaskModel): Promise<TaskModel> {
+    task.is_completed = true;
+    await task.save();
+    return task;
   }
-
+  
   /**
    * Find tasks by a specific condition
    */
@@ -45,44 +47,6 @@ export class TaskDAO {
   }
 
   /**
-   * Find one task by a specific condition
-   */
-  async findOne(where: WhereOptions<TaskModel>): Promise<TaskModel | null> {
-    return await TaskModel.findOne({ where });
-  }
-
-  /**
-   * Update a task in the database
-   */
-  async update(
-    task: TaskModel,
-    data: Partial<{
-      title: string;
-      description: string;
-      is_completed: boolean;
-    }>
-  ): Promise<TaskModel> {
-    await task.update(data);
-    return task;
-  }
-
-  /**
-   * Delete a task from the database
-   */
-  async delete(task: TaskModel): Promise<void> {
-    await task.destroy();
-  }
-
-  /**
-   * Mark a task as completed
-   */
-  async markAsCompleted(task: TaskModel): Promise<TaskModel> {
-    task.is_completed = true;
-    await task.save();
-    return task;
-  }
-
-  /**
    * Get recent non-completed tasks
    */
   async findRecentNonCompleted(limit: number = 5): Promise<TaskModel[]> {
@@ -94,35 +58,7 @@ export class TaskDAO {
       }
     );
   }
-
-  /**
-   * Get all tasks ordered by creation date
-   */
-  async findAllOrderedByDate(): Promise<TaskModel[]> {
-    return await this.findAll({
-      order: [["created_at", "DESC"]],
-    });
-  }
-
-  /**
-   * Count tasks by condition
-   */
-  async count(where?: WhereOptions<TaskModel>): Promise<number> {
-    if (where) {
-      return await TaskModel.count({ where });
-    }
-    return await TaskModel.count();
-  }
-
-  /**
-   * Check if a task exists by ID
-   */
-  async exists(id: number): Promise<boolean> {
-    const count = await this.count({ id });
-    return count > 0;
-  }
 }
 
 // Export singleton instance
 export const taskDAO = new TaskDAO();
-

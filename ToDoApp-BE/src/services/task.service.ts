@@ -19,7 +19,6 @@ export class TaskService {
     }
 
     try {
-      // Create task using DAO
       const task = await taskDAO.create({
         title: dto.title,
         description: dto.description,
@@ -45,7 +44,6 @@ export class TaskService {
    * Mark a task as completed
    */
   async completeTask(id: number): Promise<TaskModel> {
-    // Find task using DAO
     const task = await taskDAO.findById(id);
 
     if (!task) {
@@ -57,7 +55,6 @@ export class TaskService {
       throw new ValidationError(ERROR_MESSAGES.TASK_ALREADY_COMPLETED);
     }
 
-    // Complete using DAO
     await taskDAO.markAsCompleted(task);
 
     return task;
@@ -74,47 +71,6 @@ export class TaskService {
     }
 
     return task;
-  }
-
-  /**
-   * Update a task
-   */
-  async updateTask(
-    id: number,
-    data: { title?: string; description?: string }
-  ): Promise<TaskModel> {
-    const task = await taskDAO.findById(id);
-
-    if (!task) {
-      throw new NotFoundError(ERROR_MESSAGES.TASK_NOT_FOUND);
-    }
-
-    // Update using DAO
-    await taskDAO.update(task, data);
-
-    return task;
-  }
-
-  /**
-   * Delete a task
-   */
-  async deleteTask(id: number): Promise<void> {
-    const task = await taskDAO.findById(id);
-
-    if (!task) {
-      throw new NotFoundError(ERROR_MESSAGES.TASK_NOT_FOUND);
-    }
-
-    // Delete using DAO
-    await taskDAO.delete(task);
-  }
-
-  /**
-   * Get all tasks
-   */
-  async getAllTasks(): Promise<TaskModel[]> {
-    const tasks = await taskDAO.findAllOrderedByDate();
-    return tasks;
   }
 }
 

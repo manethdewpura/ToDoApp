@@ -47,7 +47,7 @@ export class TaskModel extends Model {
   declare created_at: Date;
 
   /**
-   * Instance method: Mark task as completed
+   * Instance method: Mark task as completed (unused)
    */
   async complete(): Promise<this> {
     if (this.is_completed) {
@@ -63,43 +63,6 @@ export class TaskModel extends Model {
    */
   isCompleted(): boolean {
     return this.is_completed;
-  }
-
-  /**
-   * Instance method: Check if task is pending
-   */
-  isPending(): boolean {
-    return !this.is_completed;
-  }
-
-  /**
-   * Instance method: Check if task is old (more than 7 days)
-   */
-  isOld(): boolean {
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    return this.created_at < sevenDaysAgo;
-  }
-
-  /**
-   * Instance method: Get task status as string
-   */
-  getStatus(): string {
-    return this.is_completed ? "Completed" : "Pending";
-  }
-
-  /**
-   * Instance method: Get formatted date
-   */
-  getFormattedDate(): string {
-    return this.created_at.toISOString();
-  }
-
-  /**
-   * Instance method: String representation
-   */
-  toString(): string {
-    return `Task #${this.id}: ${this.title} [${this.getStatus()}]`;
   }
 
   /**
