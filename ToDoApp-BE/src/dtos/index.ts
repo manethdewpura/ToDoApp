@@ -1,2 +1,2 @@
-export { CreateTaskDto, TaskResponseDto, CompleteTaskDto } from "./task.dto.js";
+export { CreateTaskDto, CompleteTaskDto } from "./task.dto.js";
 

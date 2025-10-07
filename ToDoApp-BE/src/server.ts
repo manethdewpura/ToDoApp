@@ -1,7 +1,7 @@
-import "reflect-metadata"; // Required for Sequelize decorators
+import "reflect-metadata";
 import express from "express";
 import cors from "cors";
-import { serverConfig, testConnection, syncDatabase } from "./config/index.js";
+import { serverConfig, testConnection } from "./config/index.js";
 import routes from "./routes/index.js";
 import {
   errorHandler,
@@ -36,17 +36,6 @@ const startServer = async () => {
   try {
     // Test database connection
     await testConnection();
-
-    if (serverConfig.env === "development") {
-      // Safe mode: Only creates tables if they don't exist, doesn't alter
-      // await syncDatabase();
-      
-      // Use this ONLY when you change model structure:
-      // await syncDatabase({ alter: true });
-      
-      // Use this to reset database (DELETES ALL DATA):
-      // await syncDatabase({ force: true });
-    }
 
     // Start server
     const server = app.listen(serverConfig.port, () => {

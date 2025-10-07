@@ -25,7 +25,6 @@ export class TaskController {
       // Create task
       const task = await taskService.createTask(dto);
 
-      // Return response (using toJSON from Sequelize model)
       res.status(HTTP_STATUS.CREATED).json({
         success: true,
         message: SUCCESS_MESSAGES.TASK_CREATED,

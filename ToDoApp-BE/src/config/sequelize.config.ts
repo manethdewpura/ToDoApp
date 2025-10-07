@@ -38,26 +38,3 @@ export const testConnection = async (): Promise<void> => {
   }
 };
 
-// Sync database (only in development)
-export const syncDatabase = async (options?: { force?: boolean; alter?: boolean }): Promise<void> => {
-  try {
-    const syncOptions = {
-      force: options?.force || false,
-      alter: options?.alter || false,
-    };
-    
-    await sequelize.sync(syncOptions);
-    
-    if (syncOptions.force) {
-      console.log(`✅ Database synchronized (force - tables dropped and recreated)`);
-    } else if (syncOptions.alter) {
-      console.log(`✅ Database synchronized (alter - columns updated)`);
-    } else {
-      console.log(`✅ Database synchronized (safe - creates tables if not exist)`);
-    }
-  } catch (error) {
-    console.error("❌ Error synchronizing database:", error);
-    throw error;
-  }
-};
-

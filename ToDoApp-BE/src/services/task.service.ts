@@ -12,7 +12,6 @@ export class TaskService {
    * Create a new task
    */
   async createTask(dto: CreateTaskDto): Promise<TaskModel> {
-    // Validate DTO
     const validation = dto.validate();
     if (!validation.isValid) {
       throw new ValidationError(validation.errors.join(", "));
