@@ -34,7 +34,7 @@ Database (PostgreSQL)
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/manethdewpura/ToDoApp.git
 cd ToDoApp
 
 # Start all services
@@ -80,8 +80,21 @@ npm install
 # Run src/init.sql to create tables
 
 # Create .env file
-cp .env.example .env
+cp .env
 # Edit .env with your database credentials
+#server
+PORT=
+API_PREFIX=
+NODE_ENV=
+CORS_ORIGIN=
+
+#database
+DB_USER=
+DB_HOST=
+DB_NAME=
+DB_PASS=
+DB_PORT=
+
 
 # Start development server
 npm run dev
@@ -180,113 +193,24 @@ cd ToDoApp-FE
 npm test
 ```
 
-### Integration Test (Docker)
+### Integration Test (cypress)
 ```bash
-# Start services
+# Ensure the stack is running (backend/db via Docker)
 docker-compose up -d
 
-# Test health endpoint
-curl http://localhost:3000/api/health
+# From the frontend folder, install deps (first time only)
+cd ToDoApp-FE
+npm ci
 
-# Create a task
-curl -X POST http://localhost:3000/api/tasks \
-  -H "Content-Type: application/json" \
-  -d '{"title": "Test Task", "description": "Testing Docker setup"}'
+# Headless run
+npm run cy:run
 
-# Get tasks
-curl http://localhost:3000/api/tasks
+# Or open the Cypress runner
+npm run cy:open
+
+# Alternatively, start the dev server and run tests automatically
+npm run e2e
 ```
-
-## 🔍 Troubleshooting
-
-### Ports Already in Use
-
-**Port 80 (Frontend)**:
-```bash
-# Windows
-netstat -ano | findstr :80
-taskkill /PID <PID> /F
-
-# Mac/Linux
-lsof -i :80
-kill -9 <PID>
-```
-
-**Port 3000 (Backend)**:
-```bash
-# Windows
-netstat -ano | findstr :3000
-taskkill /PID <PID> /F
-
-# Mac/Linux
-lsof -i :3000
-kill -9 <PID>
-```
-
-### View Logs
-
-```bash
-# All services
-docker-compose logs -f
-
-# Specific service
-docker-compose logs -f backend
-docker-compose logs -f frontend
-docker-compose logs -f db
-```
-
-### Clean Restart
-
-```bash
-# Stop and remove everything
-docker-compose down -v
-
-# Rebuild and start
-docker-compose build
-docker-compose up -d
-```
-
-### Database Issues
-
-```bash
-# Access PostgreSQL
-docker exec -it todoapp-db psql -U postgres -d todos
-
-# View tasks
-SELECT * FROM task;
-
-# Check connection
-docker exec -it todoapp-db pg_isready -U postgres
-```
-
-## 🚀 Production Deployment
-
-### Security Checklist
-
-- [ ] Change default database passwords
-- [ ] Set strong `POSTGRES_PASSWORD` in docker-compose.yml
-- [ ] Update `CORS_ORIGIN` to your domain
-- [ ] Don't expose database port in production
-- [ ] Set up SSL/TLS certificates
-- [ ] Use environment variables for secrets
-- [ ] Enable firewall rules
-- [ ] Set up monitoring and logging
-
-### Deploy to Server
-
-1. Copy files to server:
-   ```bash
-   scp -r ToDoApp user@server:/path/to/app
-   ```
-
-2. SSH and start:
-   ```bash
-   ssh user@server
-   cd /path/to/app
-   make up
-   ```
-
-3. Set up reverse proxy (nginx/Apache) for SSL
 
 ## 🛠️ Tech Stack
 

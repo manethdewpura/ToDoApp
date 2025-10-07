@@ -165,13 +165,6 @@ Required environment variables:
 docker-compose up --build
 ```
 
-### Production
-
-```bash
-# Build and run production containers
-docker-compose -f docker-compose.prod.yml up --build
-```
-
 ## API Documentation
 
 ### Create Task
