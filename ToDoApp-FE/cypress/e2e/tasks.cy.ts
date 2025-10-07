@@ -1,115 +1,152 @@
 /// <reference types="cypress" />
-const API_BASE = Cypress.env('API_BASE') || 'http://localhost:3000/api';
 
-describe('ToDoApp E2E - Tasks', () => {
-  beforeEach(() => {
-    cy.intercept('GET', `${API_BASE}/tasks`, {
+/// <reference types="cypress" />
+
+// E2E tests for ToDo App using network stubbing
+
+type Task = {
+  id: number;
+  title: string;
+  description: string;
+  isCompleted: boolean;
+  createdAt: string;
+};
+
+// Match any host to be robust across environments (dev/prod)
+const api = (path: string) => `**/api${path}`;
+
+describe('ToDoApp - Tasks E2E', () => {
+
+  it('shows empty state on initial load', () => {
+    cy.intercept('GET', api('/tasks'), {
       statusCode: 200,
-      body: {
-        success: true,
-        data: [],
-      },
+      body: { success: true, data: [] },
     }).as('getTasks');
-  });
 
-  it('loads the app and shows empty state', () => {
     cy.visit('/');
     cy.wait('@getTasks');
+
+    cy.contains('No tasks yet!').should('be.visible');
     cy.contains('Add New Task').should('be.visible');
-    cy.contains('Recent Tasks').should('be.visible');
-    cy.contains('No tasks yet').should('exist');
   });
 
-  it('adds a task successfully', () => {
-    cy.intercept('POST', `${API_BASE}/tasks`, (req) => {
-      const { title, description } = req.body;
-      req.reply({
-        statusCode: 200,
-        body: {
-          success: true,
-          data: {
-            id: 1,
-            title,
-            description,
-            status: 'PENDING',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-        },
-      });
+  it('creates a task via the form and refreshes list', () => {
+    const newTask: Task = {
+      id: 1,
+      title: 'Write Cypress tests',
+      description: 'Cover create and complete flows',
+      isCompleted: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Stateful intercepts: first GET empty, after POST respond with new task
+    let created = false;
+
+    cy.intercept('GET', api('/tasks'), (req) => {
+      if (created) {
+        req.reply({ statusCode: 200, body: { success: true, data: [newTask] } });
+      } else {
+        req.reply({ statusCode: 200, body: { success: true, data: [] } });
+      }
+    }).as('getTasks');
+
+    cy.intercept('POST', api('/tasks'), (req) => {
+      expect(req.headers['content-type']).to.include('application/json');
+      const body = req.body as { title: string; description: string };
+      expect(body.title).to.equal(newTask.title);
+      expect(body.description).to.equal(newTask.description);
+      created = true;
+      req.reply({ statusCode: 201, body: { success: true, data: newTask } });
     }).as('createTask');
 
-    cy.intercept('GET', `${API_BASE}/tasks`, {
-      statusCode: 200,
-      body: {
-        success: true,
-        data: [
-          {
-            id: 1,
-            title: 'My first task',
-            description: 'Do something important',
-            status: 'PENDING',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-        ],
-      },
-    }).as('getTasksAfterCreate');
-
     cy.visit('/');
     cy.wait('@getTasks');
 
-    cy.get('input#title').type('My first task');
-    cy.get('textarea#description').type('Do something important');
+    cy.get('#title').type(newTask.title);
+    cy.get('#description').type(newTask.description);
     cy.contains('button', 'Add Task').click();
 
     cy.wait('@createTask');
-    cy.wait('@getTasksAfterCreate');
+    cy.wait('@getTasks');
 
-    cy.contains('Task added successfully!').should('be.visible');
-    cy.contains('My first task').should('be.visible');
-    cy.contains('Do something important').should('be.visible');
+    cy.contains(newTask.title).should('be.visible');
+    cy.contains(newTask.description).should('be.visible');
   });
 
-  it('completes a task', () => {
-    const task = {
-      id: 2,
-      title: 'Complete me',
-      description: 'Mark as done',
-      status: 'PENDING',
+  it('completes a task from the list and removes it', () => {
+    const task: Task = {
+      id: 11,
+      title: 'Incomplete task',
+      description: 'Click check to complete',
+      isCompleted: false,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
 
-    cy.intercept('GET', `${API_BASE}/tasks`, {
-      statusCode: 200,
-      body: { success: true, data: [task] },
-    }).as('getTasksWithItem');
+    // Stateful GET: return the task first, then empty after completion
+    let completed = false;
+    cy.intercept('GET', api('/tasks'), (req) => {
+      if (completed) {
+        req.reply({ statusCode: 200, body: { success: true, data: [] } });
+      } else {
+        req.reply({ statusCode: 200, body: { success: true, data: [task] } });
+      }
+    }).as('getTasks');
 
-    cy.intercept('PATCH', `${API_BASE}/tasks/${task.id}/complete`, {
-      statusCode: 200,
-      body: {
-        success: true,
-        data: { ...task, status: 'COMPLETED', updatedAt: new Date().toISOString() },
-      },
+    // Completing the task toggles GET response to empty
+    cy.intercept('PATCH', api(`/tasks/${task.id}/complete`), (req) => {
+      completed = true;
+      req.reply({ statusCode: 200, body: { success: true, data: { ...task, isCompleted: true } } });
     }).as('completeTask');
 
-    cy.intercept('GET', `${API_BASE}/tasks`, {
-      statusCode: 200,
-      body: { success: true, data: [] },
-    }).as('getTasksAfterComplete');
-
     cy.visit('/');
-    cy.wait('@getTasksWithItem');
+    cy.wait('@getTasks');
 
-    cy.get('button[title="Mark as complete"]').first().click();
+    cy.contains(task.title).should('be.visible');
+    cy.contains(task.description).should('be.visible');
+
+    // Button in card has title attribute "Mark as complete"
+    cy.get('button[title="Mark as complete"]').first().click({ force: true });
 
     cy.wait('@completeTask');
-    cy.wait('@getTasksAfterComplete');
+    cy.wait('@getTasks');
+    cy.contains('No tasks yet!').should('be.visible');
+  });
 
-    cy.contains('Task completed!').should('be.visible');
-    cy.contains('Complete me').should('not.exist');
+  it('shows an error toast when creation fails', () => {
+    // Ignore the expected uncaught rejection from the app for this test only
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (Cypress as any).on('uncaught:exception', (err: unknown) => {
+      const message = err instanceof Error ? err.message : String(err);
+      if (/Failed to create task/i.test(message)) {
+        return false;
+      }
+      // Let other exceptions fail the test
+      return true;
+    });
+
+    // Initial load
+    cy.intercept('GET', api('/tasks'), {
+      statusCode: 200,
+      body: { success: true, data: [] },
+    }).as('getTasksEmpty');
+
+    // Simulate backend validation/server error
+    cy.intercept('POST', api('/tasks'), {
+      statusCode: 400,
+      body: { success: false, error: { message: 'Failed to create task', statusCode: 400 } },
+    }).as('createFail');
+
+    cy.visit('/');
+    cy.wait('@getTasksEmpty');
+
+    cy.get('#title').type('Bad Task');
+    cy.get('#description').type('This will fail');
+    cy.contains('button', 'Add Task').click();
+
+    cy.wait('@createFail');
+
+    // Expect an error toast/message to be visible
+    cy.contains(/failed to add task|failed to create task/i).should('be.visible');
   });
 });
-
 

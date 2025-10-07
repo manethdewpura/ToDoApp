@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TaskForm } from '../TaskForm';
 
@@ -28,7 +28,6 @@ describe('TaskForm', () => {
 
     expect(onSubmit).toHaveBeenCalledWith('My Task', 'Something to do');
 
-    // fields cleared after successful submit
     expect(title).toHaveValue('');
     expect(desc).toHaveValue('');
   });
@@ -45,16 +44,17 @@ describe('TaskForm', () => {
     const button = screen.getByRole('button', { name: /add task/i });
     await user.click(button);
 
-    // while loading, button is disabled and shows spinner text
     expect(button).toBeDisabled();
     expect(screen.getByText(/adding/i)).toBeInTheDocument();
-
-    // attempt a second click shouldn't call again
     await user.click(button);
     expect(onSubmit).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      resolvePromise!();
+    });
 
-    // finish
-    resolvePromise!();
+    expect(screen.queryByText(/adding/i)).not.toBeInTheDocument();
+    expect(button).toHaveTextContent(/add task/i);
+    expect(button).toBeDisabled();
   });
 
   it('does not submit when title is only whitespace', async () => {
